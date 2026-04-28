@@ -1,46 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart'; 
 import 'firebase_options.dart'; 
+import 'package:flutter/services.dart';
+import 'common/theme/app_theme.dart';
+import 'screens/onboarding/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Khởi tạo Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+
+  // Cấu hình thanh trạng thái (StatusBar)
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ),
+  );
+
+  runApp(const BobaApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class BobaApp extends StatelessWidget {
+  const BobaApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Firebase App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Firebase Connection Success'),
-      ),
-      body: const Center(
-        child: Text(
-          'Kết nối Firebase thành công!',
-          style: TextStyle(fontSize: 20),
-        ),
-      ),
+      title: 'Boba House',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      home: const OnboardingScreen(),
     );
   }
 }
