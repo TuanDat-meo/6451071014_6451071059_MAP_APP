@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart'; 
 import 'firebase_options.dart'; 
 import 'package:flutter/services.dart';
+import 'package:quan_ly_quan_ts/data/services/firebase_service.dart'; // Import service
 import 'common/theme/app_theme.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 
@@ -12,6 +13,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Tạo dữ liệu mẫu
+  await FirebaseService().seedData();
 
   // Cấu hình thanh trạng thái (StatusBar)
   SystemChrome.setSystemUIOverlayStyle(
