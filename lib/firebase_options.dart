@@ -46,6 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '152096645156',
     projectId: 'vs6451071059',
     authDomain: 'vs6451071059.firebaseapp.com',
+    databaseURL: 'https://vs6451071059-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'vs6451071059.firebasestorage.app',
     measurementId: 'G-G8HBNL4L8J',
   );
@@ -55,6 +56,7 @@ class DefaultFirebaseOptions {
     appId: '1:152096645156:android:df1483d27bc2d32989b8b1',
     messagingSenderId: '152096645156',
     projectId: 'vs6451071059',
+    databaseURL: 'https://vs6451071059-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'vs6451071059.firebasestorage.app',
   );
 
@@ -63,6 +65,7 @@ class DefaultFirebaseOptions {
     appId: '1:152096645156:ios:08d0666460a5d27f89b8b1',
     messagingSenderId: '152096645156',
     projectId: 'vs6451071059',
+    databaseURL: 'https://vs6451071059-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'vs6451071059.firebasestorage.app',
     iosBundleId: 'com.example.quanLyQuanTs',
   );
@@ -72,6 +75,7 @@ class DefaultFirebaseOptions {
     appId: '1:152096645156:ios:08d0666460a5d27f89b8b1',
     messagingSenderId: '152096645156',
     projectId: 'vs6451071059',
+    databaseURL: 'https://vs6451071059-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'vs6451071059.firebasestorage.app',
     iosBundleId: 'com.example.quanLyQuanTs',
   );
@@ -82,7 +86,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '152096645156',
     projectId: 'vs6451071059',
     authDomain: 'vs6451071059.firebaseapp.com',
+    databaseURL: 'https://vs6451071059-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'vs6451071059.firebasestorage.app',
     measurementId: 'G-KT0YLBNJ2W',
   );
+
 }

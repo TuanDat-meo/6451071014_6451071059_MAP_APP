@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../common/theme/app_theme.dart';
 import '../../common/widgets/app_button.dart';
+import '../../data/services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -14,6 +15,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
+  String? _errorMessage;
 
   final _loginEmailController = TextEditingController();
   final _loginPasswordController = TextEditingController();
@@ -22,11 +24,15 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
   final _registerPasswordController = TextEditingController();
   final _registerConfirmPasswordController = TextEditingController();
 
+  final _authService = AuthService();
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() => setState(() {}));
+    _tabController.addListener(() => setState(() {
+      _errorMessage = null; // Clear error when switching tabs
+    }));
   }
 
   @override
@@ -41,10 +47,100 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
-  Future<void> _handleSubmit() async {
-    setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2)); // simulate API call
-    setState(() => _isLoading = false);
+  Future<void> _handleLogin() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final email = _loginEmailController.text.trim();
+      final password = _loginPasswordController.text;
+
+      if (email.isEmpty || password.isEmpty) {
+        setState(() {
+          _errorMessage = 'Vui lòng nhập email và mật khẩu';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final error = await _authService.login(email, password);
+      
+      setState(() {
+        _isLoading = false;
+        if (error != null) {
+          _errorMessage = error;
+        } else {
+          // Login successful - navigate to home
+          _errorMessage = null;
+          _showSuccessSnackbar('Đăng nhập thành công!');
+          // TODO: Navigate to home screen
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Lỗi: $e';
+      });
+    }
+  }
+
+  Future<void> _handleRegister() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final name = _registerNameController.text.trim();
+      final email = _registerEmailController.text.trim();
+      final password = _registerPasswordController.text;
+      final confirmPassword = _registerConfirmPasswordController.text;
+
+      if (name.isEmpty || email.isEmpty || password.isEmpty) {
+        setState(() {
+          _errorMessage = 'Vui lòng điền đầy đủ thông tin';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final error = await _authService.register(name, email, password, confirmPassword);
+      
+      setState(() {
+        _isLoading = false;
+        if (error != null) {
+          _errorMessage = error;
+        } else {
+          // Registration successful
+          _errorMessage = null;
+          _showSuccessSnackbar('Tạo tài khoản thành công! Vui lòng đợi xác minh từ quản trị viên.');
+          // Clear form
+          _registerNameController.clear();
+          _registerEmailController.clear();
+          _registerPasswordController.clear();
+          _registerConfirmPasswordController.clear();
+          // Switch to login tab
+          _tabController.animateTo(0);
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Lỗi: $e';
+      });
+    }
+  }
+
+  void _showSuccessSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -136,8 +232,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                         onTogglePassword: () =>
                             setState(() => _obscurePassword = !_obscurePassword),
                         isLoading: _isLoading,
-                        onSubmit: _handleSubmit,
+                        onSubmit: _handleLogin,
                         onSwitchToRegister: () => _tabController.animateTo(1),
+                        errorMessage: _errorMessage,
                       ),
                       _RegisterTab(
                         nameController: _registerNameController,
@@ -151,8 +248,9 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
                         onToggleConfirmPassword: () => setState(
                             () => _obscureConfirmPassword = !_obscureConfirmPassword),
                         isLoading: _isLoading,
-                        onSubmit: _handleSubmit,
+                        onSubmit: _handleRegister,
                         onSwitchToLogin: () => _tabController.animateTo(0),
+                        errorMessage: _errorMessage,
                       ),
                     ],
                   ),
@@ -221,6 +319,7 @@ class _LoginTab extends StatelessWidget {
   final bool isLoading;
   final VoidCallback onSubmit;
   final VoidCallback onSwitchToRegister;
+  final String? errorMessage;
 
   const _LoginTab({
     required this.emailController,
@@ -230,6 +329,7 @@ class _LoginTab extends StatelessWidget {
     required this.isLoading,
     required this.onSubmit,
     required this.onSwitchToRegister,
+    this.errorMessage,
   });
 
   @override
@@ -239,6 +339,21 @@ class _LoginTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Error message
+          if (errorMessage != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red.withOpacity(0.5)),
+              ),
+              child: Text(
+                errorMessage!,
+                style: const TextStyle(color: Colors.red, fontSize: 13),
+              ),
+            ),
           _AppTextField(
             controller: emailController,
             label: 'Email',
@@ -351,6 +466,7 @@ class _RegisterTab extends StatelessWidget {
   final bool isLoading;
   final VoidCallback onSubmit;
   final VoidCallback onSwitchToLogin;
+  final String? errorMessage;
 
   const _RegisterTab({
     required this.nameController,
@@ -364,6 +480,7 @@ class _RegisterTab extends StatelessWidget {
     required this.isLoading,
     required this.onSubmit,
     required this.onSwitchToLogin,
+    this.errorMessage,
   });
 
   @override
@@ -372,6 +489,21 @@ class _RegisterTab extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(32, 0, 32, 32),
       child: Column(
         children: [
+          // Error message
+          if (errorMessage != null)
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red.withOpacity(0.5)),
+              ),
+              child: Text(
+                errorMessage!,
+                style: const TextStyle(color: Colors.red, fontSize: 13),
+              ),
+            ),
           _AppTextField(
             controller: nameController,
             label: 'Họ và tên',
