@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "152096645156",
+    "project_id": "vs6451071059",
+    "storage_bucket": "vs6451071059.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:152096645156:android:df1483d27bc2d32989b8b1",
+        "android_client_info": {
+          "package_name": "com.example.quan_ly_quan_ts"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZHe4tj0UofVpcIemkZ7_crgA8d2KB0Mk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
