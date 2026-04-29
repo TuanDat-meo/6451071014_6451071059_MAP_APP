@@ -3,8 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart'; 
 import 'package:flutter/services.dart';
 import 'package:quan_ly_quan_ts/data/services/firebase_service.dart'; // Import service
+import 'package:quan_ly_quan_ts/screens/onboarding/onboarding_screen.dart'; // Import OnboardingScreen
 import 'common/theme/app_theme.dart';
-import 'screens/onboarding/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

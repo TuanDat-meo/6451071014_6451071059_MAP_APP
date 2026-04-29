@@ -25,7 +25,7 @@ class BobaModel {
     };
   }
 
-  factory BobaModel.fromJson(Map<String, dynamic> json, String id) {
+  factory BobaModel.fromJson(Map<dynamic, dynamic> json, String id) {
     return BobaModel(
       id: id,
       name: json['name'] ?? '',
