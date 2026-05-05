@@ -3,6 +3,7 @@ import '../../data/models/boba_model.dart';
 import '../../data/services/firebase_service.dart';
 import 'package:intl/intl.dart';
 import '../product/product_detail_screen.dart';
+import '../notifications/notification_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,10 +23,11 @@ class HomeScreen extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.brown),
+            icon: const Icon(Icons.notifications_outlined, color: Colors.brown),
             onPressed: () {
-              // Xử lý đăng xuất (Tạm thời quay lại trang Onboarding)
-              Navigator.of(context).pop();
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => const NotificationScreen(),
+              ));
             },
           ),
         ],

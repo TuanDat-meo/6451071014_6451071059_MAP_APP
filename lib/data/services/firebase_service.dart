@@ -123,6 +123,19 @@ class FirebaseService {
     });
   }
 
+  // Lấy tất cả đơn hàng (Debug/Admin)
+  Stream<List<Order>> getAllOrdersStream() {
+    return _ordersRef.onValue.map((event) {
+      final Map<dynamic, dynamic>? data =
+          event.snapshot.value as Map<dynamic, dynamic>?;
+      if (data == null) return [];
+
+      return data.entries.map((entry) {
+        return Order.fromJson(entry.value as Map<dynamic, dynamic>);
+      }).toList();
+    });
+  }
+
   // Lấy chi tiết một đơn hàng
   Future<Order?> getOrder(String orderId) async {
     try {

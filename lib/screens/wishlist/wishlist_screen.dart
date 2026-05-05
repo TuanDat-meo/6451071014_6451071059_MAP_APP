@@ -1,143 +1,117 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../controller/wishlist_controller.dart';
+import '../../controller/cart_controller.dart';
+import '../../common/theme/app_theme.dart';
 import '../../data/models/boba_model.dart';
 import '../product/product_detail_screen.dart';
 
-class WishlistScreen extends StatefulWidget {
+class WishlistScreen extends StatelessWidget {
   const WishlistScreen({super.key});
 
   @override
-  State<WishlistScreen> createState() => _WishlistScreenState();
-}
-
-class _WishlistScreenState extends State<WishlistScreen> {
-  // Sample wishlist data (sẽ thay bằng data từ State Management)
-  final List<BobaModel> wishlistItems = [
-    BobaModel(
-      id: '1',
-      name: 'Trà Sữa Trân Châu Đường Đen',
-      price: 45000,
-      image: 'assets/images/image.png',
-      description: 'Sự kết hợp hoàn hảo giữa sữa tươi đá xay và trân châu đường đen ngọt ngào.',
-      category: 'Trà Sữa',
-    ),
-    BobaModel(
-      id: '2',
-      name: 'Matcha Latte',
-      price: 50000,
-      image: 'assets/images/image4.png',
-      description: 'Bột matcha Nhật Bản nguyên chất hòa quyện cùng sữa tươi béo ngậy.',
-      category: 'Latte',
-    ),
-  ];
-
-  late List<BobaModel> displayedWishlist;
-
-  @override
-  void initState() {
-    super.initState();
-    displayedWishlist = List.from(wishlistItems);
-  }
-
-  void _removeFromWishlist(BobaModel product) {
-    setState(() {
-      displayedWishlist.removeWhere((item) => item.id == product.id);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Đã xóa ${product.name} khỏi yêu thích'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final WishlistController wishlistController = Get.find<WishlistController>();
     final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.offWhite,
       appBar: AppBar(
         title: const Text(
           'Sản phẩm yêu thích',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.brown),
+          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.darkBrown),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.brown),
-          onPressed: () => Navigator.pop(context),
-        ),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        actions: [
+          Obx(() => wishlistController.wishlistItems.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.delete_sweep_outlined, color: AppColors.rose),
+                  onPressed: () => _showClearDialog(context, wishlistController),
+                )
+              : const SizedBox.shrink()),
+        ],
       ),
-      body: displayedWishlist.isEmpty
-          ? _buildEmptyWishlist(context)
-          : GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.75,
-              ),
-              itemCount: displayedWishlist.length,
-              itemBuilder: (context, index) {
-                return _buildWishlistCard(
-                  context,
-                  displayedWishlist[index],
-                  currencyFormat,
-                );
-              },
-            ),
+      body: Obx(() {
+        if (wishlistController.wishlistItems.isEmpty) {
+          return _buildEmptyState(context);
+        }
+
+        return GridView.builder(
+          padding: const EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 14,
+            crossAxisSpacing: 14,
+            childAspectRatio: 0.68,
+          ),
+          itemCount: wishlistController.wishlistItems.length,
+          itemBuilder: (context, index) {
+            return _buildWishlistCard(
+              context,
+              wishlistController.wishlistItems[index],
+              currencyFormat,
+              wishlistController,
+            );
+          },
+        );
+      }),
     );
   }
 
-  Widget _buildEmptyWishlist(BuildContext context) {
+  void _showClearDialog(BuildContext context, WishlistController controller) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xóa tất cả'),
+        content: const Text('Bạn có chắc muốn xóa tất cả sản phẩm yêu thích?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              controller.clearWishlist();
+            },
+            child: const Text('Xóa tất cả', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.favorite_outline,
-            size: 80,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Chưa có sản phẩm yêu thích',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: AppColors.tapioca.withOpacity(0.3),
+              shape: BoxShape.circle,
             ),
+            child: const Icon(Icons.favorite_outline_rounded, size: 48, color: AppColors.milkTea),
           ),
-          const SizedBox(height: 10),
-          Text(
-            'Thêm sản phẩm yêu thích để dễ dàng tìm lại sau này',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+          const SizedBox(height: 24),
+          const Text('Chưa có sản phẩm yêu thích',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkBrown)),
+          const SizedBox(height: 8),
+          Text('Hãy thêm sản phẩm vào danh sách yêu thích\nđể dễ dàng tìm lại sau',
+              textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: AppColors.grey)),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () => Get.find<CartController>().changeTab(0),
+            icon: const Icon(Icons.local_cafe_rounded),
+            label: const Text('Khám phá thực đơn'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.brown,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 40,
-                vertical: 12,
-              ),
-            ),
-            child: const Text(
-              'Tiếp tục mua sắm',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              backgroundColor: AppColors.milkTea,
+              foregroundColor: AppColors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
           ),
         ],
@@ -149,131 +123,110 @@ class _WishlistScreenState extends State<WishlistScreen> {
     BuildContext context,
     BobaModel product,
     NumberFormat currencyFormat,
+    WishlistController controller,
   ) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductDetailScreen(product: product),
-          ),
-        );
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) => ProductDetailScreen(product: product),
+        ));
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          color: AppColors.white,
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 3,
+              color: AppColors.darkBrown.withOpacity(0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
+            // Image + Favorite button
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   child: Image.asset(
                     product.image,
-                    height: 140,
+                    height: 130,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    errorBuilder: (c, e, s) => Container(
+                      height: 130,
+                      color: AppColors.tapioca.withOpacity(0.3),
+                      child: const Icon(Icons.local_cafe, color: AppColors.milkTea, size: 40),
+                    ),
                   ),
                 ),
                 Positioned(
                   top: 8,
                   right: 8,
                   child: GestureDetector(
-                    onTap: () => _removeFromWishlist(product),
+                    onTap: () => controller.toggleWishlist(product),
                     child: Container(
                       padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white,
+                        color: AppColors.white,
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4),
+                        ],
                       ),
-                      child: const Icon(
-                        Icons.favorite,
-                        color: Colors.red,
-                        size: 20,
-                      ),
+                      child: const Icon(Icons.favorite_rounded, color: AppColors.rose, size: 20),
                     ),
                   ),
                 ),
               ],
             ),
 
-            // Product Info
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+            // Info
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(product.name,
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                            maxLines: 2, overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 2),
+                        Text(product.category,
+                            style: TextStyle(fontSize: 11, color: AppColors.grey)),
+                      ],
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    product.category,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    currencyFormat.format(product.price),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.brown,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 32,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ProductDetailScreen(product: product),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(currencyFormat.format(product.price),
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.milkTea)),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => ProductDetailScreen(product: product),
+                            ));
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.milkTea,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.add_rounded, color: AppColors.white, size: 18),
                           ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.brown,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
                         ),
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: const Text(
-                        'Thêm vào giỏ',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

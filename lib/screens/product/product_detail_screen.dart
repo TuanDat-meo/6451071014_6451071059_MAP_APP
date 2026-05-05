@@ -5,6 +5,8 @@ import '../../data/models/cart_item_model.dart';
 import 'package:uuid/uuid.dart';
 import 'package:get/get.dart';
 import '../../controller/cart_controller.dart';
+import '../../controller/wishlist_controller.dart';
+import '../review/review_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final BobaModel product;
@@ -114,6 +116,30 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.brown),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          // Nút Wishlist
+          Obx(() {
+            final wishlistCtrl = Get.find<WishlistController>();
+            final isFav = wishlistCtrl.isWishlisted(widget.product.id ?? '');
+            return IconButton(
+              icon: Icon(isFav ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                  color: isFav ? Colors.red : Colors.brown),
+              onPressed: () => wishlistCtrl.toggleWishlist(widget.product),
+            );
+          }),
+          // Nút Đánh giá
+          IconButton(
+            icon: const Icon(Icons.star_outline_rounded, color: Colors.brown),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => ReviewScreen(
+                  productId: widget.product.id ?? '',
+                  productName: widget.product.name,
+                ),
+              ));
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(

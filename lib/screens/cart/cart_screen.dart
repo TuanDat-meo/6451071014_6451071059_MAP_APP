@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import '../../data/models/cart_item_model.dart';
 import '../../controller/cart_controller.dart';
+import 'checkout_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -21,10 +22,8 @@ class CartScreen extends StatelessWidget {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.brown),
-          onPressed: () => Navigator.pop(context),
-        ),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Obx(() {
         final cartItems = cartController.cart.value.items;
@@ -62,7 +61,7 @@ class CartScreen extends StatelessWidget {
           const Text('Giỏ hàng trống', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 30),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Get.find<CartController>().changeTab(0),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.brown),
             child: const Text('Tiếp tục mua sắm', style: TextStyle(color: Colors.white)),
           ),
@@ -154,8 +153,11 @@ class CartScreen extends StatelessWidget {
             height: 50,
             child: ElevatedButton(
               onPressed: () {
-                // Xử lý thanh toán và chuyển sang tab Đơn hàng
-                controller.processCheckout();
+                // Mở form checkout đầy đủ
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CheckoutScreen()),
+                );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.brown, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               child: const Text('THANH TOÁN', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
