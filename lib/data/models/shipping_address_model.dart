@@ -46,6 +46,14 @@ class ShippingAddress {
     };
   }
 
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    try { return (value).toDate(); } catch (_) {}
+    return null;
+  }
+
   factory ShippingAddress.fromJson(Map<dynamic, dynamic> json) {
     return ShippingAddress(
       id: json['id'] ?? '',
@@ -58,9 +66,7 @@ class ShippingAddress {
       province: json['province'] ?? '',
       postalCode: json['postalCode'] ?? '',
       isDefault: json['isDefault'] ?? false,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
+      createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
     );
   }
 

@@ -25,8 +25,7 @@ void main() async {
   // Khởi tạo định dạng ngày tháng/tiền tệ cho tiếng Việt
   await initializeDateFormatting('vi_VN', null);
 
-  // Tạo dữ liệu mẫu
-  await FirebaseService().seedData();
+  // Seed data sẽ được gọi sau khi đăng nhập (auth_screen.dart)
 
   // Cấu hình thanh trạng thái (StatusBar)
   SystemChrome.setSystemUIOverlayStyle(

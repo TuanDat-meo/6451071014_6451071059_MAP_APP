@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../common/theme/app_theme.dart';
 import '../../common/widgets/app_button.dart';
 import '../../data/services/auth_service.dart';
+import '../../data/services/firebase_service.dart';
 import '../main_navigation_screen.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -67,22 +68,33 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       }
 
       final error = await _authService.login(email, password);
-      
-      setState(() {
-        _isLoading = false;
-        if (error != null) {
+
+      if (error != null) {
+        setState(() {
+          _isLoading = false;
           _errorMessage = error;
-        } else {
-          // Login successful - navigate to home
+        });
+      } else {
+        // Login successful
+        setState(() {
+          _isLoading = false;
           _errorMessage = null;
-          _showSuccessSnackbar('Đăng nhập thành công!');
-          
-          if (!mounted) return;
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
-          );
-        }
-      });
+        });
+        
+        _showSuccessSnackbar('Đăng nhập thành công!');
+
+        // Lưu userId vào FirebaseService
+        final firebaseService = FirebaseService();
+        await firebaseService.setCurrentUser(email);
+        
+        // Seed dữ liệu mẫu lên Firestore (chạy async)
+        firebaseService.seedData();
+
+        if (!mounted) return;
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
+        );
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;

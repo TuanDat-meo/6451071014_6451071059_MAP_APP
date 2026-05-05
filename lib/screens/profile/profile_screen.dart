@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import '../../controller/cart_controller.dart';
 import '../../common/theme/app_theme.dart';
+import '../../data/services/firebase_service.dart';
+import '../auth/auth_screen.dart';
 import '../shipping_address/shipping_address_screen.dart';
 import '../notifications/notification_screen.dart';
 
@@ -11,7 +12,7 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    final userId = FirebaseService().userId;
 
     return Scaffold(
       backgroundColor: AppColors.offWhite,
@@ -74,24 +75,24 @@ class ProfileScreen extends StatelessWidget {
                     child: const Icon(Icons.person, size: 50, color: AppColors.white),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    user?.displayName ?? 'Khách hàng thân thiết',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.darkBrown,
-                      fontFamily: AppTextStyles.bodyFont,
-                    ),
+                  FutureBuilder<Map<String, dynamic>?>(
+                    future: FirebaseService().getUserInfo(userId),
+                    builder: (context, snapshot) {
+                      final name = snapshot.data?['name'] ?? 'Khách hàng thân thiết';
+                      final email = snapshot.data?['email'] ?? 'Chưa đăng nhập';
+                      return Column(
+                        children: [
+                          Text(name, style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold,
+                            color: AppColors.darkBrown, fontFamily: AppTextStyles.bodyFont)),
+                          const SizedBox(height: 6),
+                          Text(email, style: TextStyle(
+                            color: AppColors.grey, fontSize: 14, fontFamily: AppTextStyles.bodyFont)),
+                        ],
+                      );
+                    },
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    user?.email ?? 'Chưa đăng nhập',
-                    style: TextStyle(
-                      color: AppColors.grey,
-                      fontSize: 14,
-                      fontFamily: AppTextStyles.bodyFont,
-                    ),
-                  ),
+
                 ],
               ),
             ),
@@ -128,7 +129,7 @@ class ProfileScreen extends StatelessWidget {
                     subtitle: 'Quản lý địa chỉ nhận hàng',
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => const ShippingAddressScreen(addresses: []),
+                        builder: (context) => const ShippingAddressScreen(),
                       ));
                     },
                   ),
@@ -196,9 +197,12 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         );
                         if (confirm == true) {
-                          await FirebaseAuth.instance.signOut();
                           Get.snackbar('Thành công', 'Đã đăng xuất',
                             backgroundColor: Colors.green, colorText: AppColors.white);
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (context) => const AuthScreen()),
+                            (route) => false,
+                          );
                         }
                       },
                       icon: const Icon(Icons.logout_rounded, color: AppColors.rose),

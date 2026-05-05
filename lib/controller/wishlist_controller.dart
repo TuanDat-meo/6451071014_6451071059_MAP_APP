@@ -1,19 +1,16 @@
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../data/models/boba_model.dart';
+import '../data/services/firebase_service.dart';
 
 class WishlistController extends GetxController {
   var wishlistItems = <BobaModel>[].obs;
   var wishlistIds = <String>[].obs;
 
-  final DatabaseReference _wishlistRef = FirebaseDatabase.instanceFor(
-    app: Firebase.app(),
-    databaseURL: 'https://vs6451071059-default-rtdb.asia-southeast1.firebasedatabase.app',
-  ).ref().child('wishlists');
+  final CollectionReference _wishlistCol =
+      FirebaseFirestore.instance.collection('wishlists');
 
-  String get _userId => FirebaseAuth.instance.currentUser?.uid ?? 'guest_user';
+  String get _userId => FirebaseService().userId;
 
   @override
   void onInit() {
@@ -22,23 +19,19 @@ class WishlistController extends GetxController {
   }
 
   void _loadWishlist() {
-    _wishlistRef.child(_userId).onValue.listen((event) {
-      final data = event.snapshot.value as Map<dynamic, dynamic>?;
-      if (data == null) {
-        wishlistItems.clear();
-        wishlistIds.clear();
-        return;
-      }
-
+    _wishlistCol
+        .where('userId', isEqualTo: _userId)
+        .snapshots()
+        .listen((snapshot) {
       final List<BobaModel> items = [];
       final List<String> ids = [];
 
-      data.forEach((key, value) {
-        final map = value as Map<dynamic, dynamic>;
-        final productId = (map['productId'] ?? key).toString();
-        items.add(BobaModel.fromJson(map, productId));
+      for (var doc in snapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        final productId = data['productId'] ?? doc.id;
+        items.add(BobaModel.fromJson(Map<dynamic, dynamic>.from(data), productId));
         ids.add(productId);
-      });
+      }
 
       wishlistItems.value = items;
       wishlistIds.value = ids;
@@ -63,14 +56,15 @@ class WishlistController extends GetxController {
   Future<void> addToWishlist(BobaModel product) async {
     try {
       final productId = product.id ?? '';
-      await _wishlistRef.child(_userId).child(productId).set({
+      await _wishlistCol.doc(productId).set({
+        'userId': _userId,
         'productId': productId,
         'name': product.name,
         'price': product.price,
         'image': product.image,
         'description': product.description,
         'category': product.category,
-        'addedAt': DateTime.now().toIso8601String(),
+        'addedAt': Timestamp.now(),
       });
     } catch (e) {
       print('Lỗi thêm wishlist: $e');
@@ -79,7 +73,7 @@ class WishlistController extends GetxController {
 
   Future<void> removeFromWishlist(String productId) async {
     try {
-      await _wishlistRef.child(_userId).child(productId).remove();
+      await _wishlistCol.doc(productId).delete();
     } catch (e) {
       print('Lỗi xóa wishlist: $e');
     }
@@ -87,7 +81,10 @@ class WishlistController extends GetxController {
 
   Future<void> clearWishlist() async {
     try {
-      await _wishlistRef.child(_userId).remove();
+      final snapshot = await _wishlistCol.where('userId', isEqualTo: _userId).get();
+      for (var doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
     } catch (e) {
       print('Lỗi xóa tất cả wishlist: $e');
     }

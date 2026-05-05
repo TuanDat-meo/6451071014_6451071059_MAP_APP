@@ -4,7 +4,6 @@ import '../data/models/cart_item_model.dart';
 import '../data/models/cart_model.dart';
 import '../data/models/order_model.dart';
 import '../data/services/firebase_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 
 class CartController extends GetxController {
@@ -79,8 +78,7 @@ class CartController extends GetxController {
     if (cart.value.items.isEmpty) return;
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      final userId = user?.uid ?? 'guest_user';
+      final userId = FirebaseService().userId;
       
       // 1. Tạo đối tượng Order mới
       final newOrder = Order(

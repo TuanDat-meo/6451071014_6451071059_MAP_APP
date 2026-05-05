@@ -31,13 +31,21 @@ class NotificationModel {
     };
   }
 
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    try { return (value).toDate(); } catch (_) {}
+    return null;
+  }
+
   factory NotificationModel.fromJson(Map<dynamic, dynamic> json) {
     return NotificationModel(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
       body: json['body'] ?? '',
       type: json['type'] ?? 'system',
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+      createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
       isRead: json['isRead'] ?? false,
       orderId: json['orderId'],
     );
