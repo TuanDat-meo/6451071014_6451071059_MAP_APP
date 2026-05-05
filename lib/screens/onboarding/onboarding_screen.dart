@@ -175,17 +175,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       ),
                       child: Center(
                         child: isLastPage
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Bắt đầu ngay',
-                                    style: AppTextStyles.button,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Icon(Icons.arrow_forward_rounded,
-                                      color: AppColors.white, size: 18),
-                                ],
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        'Bắt đầu ngay',
+                                        style: AppTextStyles.button.copyWith(fontSize: 14),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.arrow_forward_rounded,
+                                        color: AppColors.white, size: 16),
+                                  ],
+                                ),
                               )
                             : const Icon(
                                 Icons.arrow_forward_rounded,

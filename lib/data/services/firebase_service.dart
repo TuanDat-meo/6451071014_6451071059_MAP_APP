@@ -16,53 +16,60 @@ class FirebaseService {
 
   Future<void> seedData() async {
     try {
-      // Kiểm tra xem đã có dữ liệu chưa
-      final snapshot = await _productsRef.get();
-      if (snapshot.exists) {
-        print("Dữ liệu đã tồn tại trên Realtime Database, bỏ qua bước tạo mẫu.");
-        return;
-      }
+      // Xóa dữ liệu cũ và ghi đè dữ liệu mới
+      await _productsRef.remove();
 
       List<BobaModel> dummyProducts = [
         BobaModel(
           name: 'Trà Sữa Trân Châu Đường Đen',
           price: 45000,
-          image: 'https://img.freepik.com/free-photo/brown-sugar-bubble-tea-with-milk_23-2148580666.jpg',
+          image: 'assets/images/image.png',
           description: 'Sự kết hợp hoàn hảo giữa sữa tươi đá xay và trân châu đường đen ngọt ngào.',
           category: 'Trà Sữa',
         ),
         BobaModel(
           name: 'Trà Đào Cam Sả',
           price: 35000,
-          image: 'https://img.freepik.com/free-photo/peach-tea-with-lemon-mint_144627-21652.jpg',
+          image: 'assets/images/image1.png',
           description: 'Vị trà đào thanh mát kết hợp cùng cam tươi và sả thơm nồng.',
           category: 'Trà Trái Cây',
         ),
         BobaModel(
-          name: 'Matcha Latte Latte',
-          price: 50000,
-          image: 'https://img.freepik.com/free-photo/matcha-latte-isolated-white-background_123827-23424.jpg',
-          description: 'Bột matcha Nhật Bản nguyên chất hòa quyện cùng sữa tươi béo ngậy.',
-          category: 'Latte',
-        ),
-        BobaModel(
-          name: 'Sô-cô-la Đá Xay',
+          name: 'Sô-Cô-La Đá Xay',
           price: 48000,
-          image: 'https://img.freepik.com/free-photo/chocolate-milkshake-with-whipped-cream_144627-14810.jpg',
+          image: 'assets/images/image2.png',
           description: 'Sô-cô-la đậm đà được xay mịn cùng đá và phủ kem tươi.',
           category: 'Đá Xay',
+        ),
+        BobaModel(
+          name: 'Matcha Latte',
+          price: 50000,
+          image: 'assets/images/image4.png',
+          description: 'Bột matcha Nhật Bản nguyên chất hòa quyện cùng sữa tươi béo ngậy.',
+          category: 'Latte',
         ),
       ];
 
       for (var product in dummyProducts) {
-        // push() tạo một ID ngẫu nhiên giống như Firestore
         await _productsRef.push().set(product.toJson());
       }
       
-      print("Đã tạo dữ liệu mẫu thành công trên Realtime Database!");
+      print("Đã cập nhật bộ thực đơn mới thành công!");
     } catch (e) {
       print("Lỗi khi tạo dữ liệu RTDB: $e");
     }
+  }
+
+  // Lấy danh sách sản phẩm theo thời gian thực (Stream)
+  Stream<List<BobaModel>> getProductsStream() {
+    return _productsRef.onValue.map((event) {
+      final Map<dynamic, dynamic>? data = event.snapshot.value as Map<dynamic, dynamic>?;
+      if (data == null) return [];
+
+      return data.entries.map((entry) {
+        return BobaModel.fromJson(entry.value as Map<dynamic, dynamic>, entry.key.toString());
+      }).toList();
+    });
   }
 
   // Phương thức để lưu thông tin người dùng mới (Dùng sau khi Đăng ký Auth thành công)
