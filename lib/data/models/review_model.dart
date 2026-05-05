@@ -35,6 +35,14 @@ class ReviewModel {
     };
   }
 
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    try { return (value).toDate(); } catch (_) {}
+    return null;
+  }
+
   factory ReviewModel.fromJson(Map<dynamic, dynamic> json) {
     return ReviewModel(
       id: json['id'] ?? '',
@@ -45,7 +53,7 @@ class ReviewModel {
       orderId: json['orderId'] ?? '',
       rating: (json['rating'] ?? 5).toDouble(),
       comment: json['comment'] ?? '',
-      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+      createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
     );
   }
 }

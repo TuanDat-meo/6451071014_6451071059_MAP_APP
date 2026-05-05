@@ -110,11 +110,23 @@ class Order {
     };
   }
 
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    if (value is String) return DateTime.tryParse(value);
+    // Firestore Timestamp - có property toDate()
+    try { return (value).toDate(); } catch (_) {}
+    return null;
+  }
+
   factory Order.fromJson(Map<dynamic, dynamic> json) {
     return Order(
       id: json['id'] ?? '',
       userId: json['userId'] ?? '',
-      items: (json['items'] as List?)?.map((item) => CartItem.fromMap(item as Map<dynamic, dynamic>)).toList() ?? [],
+      items: (json['items'] as List?)?.map((item) {
+        final m = item is Map ? Map<dynamic, dynamic>.from(item) : <dynamic, dynamic>{};
+        return CartItem.fromMap(m);
+      }).toList() ?? [],
       subtotal: (json['subtotal'] ?? 0).toDouble(),
       shippingCost: (json['shippingCost'] ?? 0).toDouble(),
       taxCost: (json['taxCost'] ?? 0).toDouble(),
@@ -132,16 +144,10 @@ class Order {
         (e) => e.name == json['paymentMethod'],
         orElse: () => PaymentMethod.cash,
       ),
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
-      confirmedAt: json['confirmedAt'] != null
-          ? DateTime.parse(json['confirmedAt'])
-          : null,
-      readyAt: json['readyAt'] != null ? DateTime.parse(json['readyAt']) : null,
-      deliveredAt: json['deliveredAt'] != null
-          ? DateTime.parse(json['deliveredAt'])
-          : null,
+      createdAt: _parseDateTime(json['createdAt']) ?? DateTime.now(),
+      confirmedAt: _parseDateTime(json['confirmedAt']),
+      readyAt: _parseDateTime(json['readyAt']),
+      deliveredAt: _parseDateTime(json['deliveredAt']),
       notes: json['notes'],
     );
   }

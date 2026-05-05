@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../data/models/order_model.dart';
 import '../../data/services/firebase_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class OrderManagementScreen extends StatefulWidget {
   const OrderManagementScreen({super.key});
@@ -13,7 +12,7 @@ class OrderManagementScreen extends StatefulWidget {
 
 class _OrderManagementScreenState extends State<OrderManagementScreen> {
   final FirebaseService _firebaseService = FirebaseService();
-  final String _currentUserId = FirebaseAuth.instance.currentUser?.uid ?? 'guest_user';
+  String get _currentUserId => _firebaseService.userId;
   String selectedFilter = 'all'; 
 
   @override
@@ -32,10 +31,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
       ),
       body: Column(
         children: [
-          // Filter Tabs
           _buildFilterTabs(),
-
-          // Orders List
           Expanded(
             child: StreamBuilder<List<Order>>(
               stream: _firebaseService.getAllOrdersStream(),
@@ -48,15 +44,12 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                   return Center(child: Text('Lỗi: ${snapshot.error}'));
                 }
 
-                // Lọc theo userId của người dùng hiện tại
                 final userOrders = (snapshot.data ?? [])
                     .where((o) => o.userId == _currentUserId)
                     .toList();
                 
-                // Sắp xếp theo ngày mới nhất
                 userOrders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
                 
-                // Lọc đơn hàng theo tab filter
                 final filteredOrders = selectedFilter == 'all' 
                     ? userOrders 
                     : userOrders.where((o) => o.status.name == selectedFilter).toList();
@@ -105,19 +98,12 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                   child: GestureDetector(
                     onTap: () => _filterOrders(filter['value'] as String),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: BoxDecoration(
-                        color: selectedFilter == filter['value']
-                            ? Colors.brown
-                            : Colors.white,
+                        color: selectedFilter == filter['value'] ? Colors.brown : Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: selectedFilter == filter['value']
-                              ? Colors.brown
-                              : Colors.grey[300]!,
+                          color: selectedFilter == filter['value'] ? Colors.brown : Colors.grey[300]!,
                         ),
                       ),
                       child: Text(
@@ -125,9 +111,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: selectedFilter == filter['value']
-                              ? Colors.white
-                              : Colors.grey[700],
+                          color: selectedFilter == filter['value'] ? Colors.white : Colors.grey[700],
                         ),
                       ),
                     ),
@@ -143,28 +127,13 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.inventory_2_outlined,
-            size: 80,
-            color: Colors.grey[400],
-          ),
+          Icon(Icons.inventory_2_outlined, size: 80, color: Colors.grey[400]),
           const SizedBox(height: 20),
-          Text(
-            'Không có đơn hàng',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[700],
-            ),
-          ),
+          Text('Không có đơn hàng',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[700])),
           const SizedBox(height: 10),
-          Text(
-            'Bạn chưa có đơn hàng nào trong danh mục này',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text('Bạn chưa có đơn hàng nào trong danh mục này',
+              style: TextStyle(fontSize: 14, color: Colors.grey[600])),
         ],
       ),
     );
@@ -175,9 +144,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm', 'vi_VN');
 
     return GestureDetector(
-      onTap: () {
-        _showOrderDetail(context, order);
-      },
+      onTap: () => _showOrderDetail(context, order),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
@@ -185,57 +152,39 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 3,
-            ),
+            BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 1, blurRadius: 3),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: Order ID & Status
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Mã đơn hàng: #${order.id}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Mã: #${order.id.length > 8 ? order.id.substring(0, 8) : order.id}',
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      dateFormat.format(order.createdAt),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(dateFormat.format(order.createdAt),
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                    ],
+                  ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: _getStatusColor(order.status),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(
-                    order.status.displayName,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: Text(order.status.displayName,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               ],
             ),
@@ -251,52 +200,25 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Giao đến',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    Text('Giao đến', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                     const SizedBox(height: 4),
-                    Text(
-                      order.recipientName,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    Text(order.recipientName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      'Tổng tiền',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    Text('Tổng tiền', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                     const SizedBox(height: 4),
-                    Text(
-                      currencyFormat.format(order.totalAmount),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.brown,
-                      ),
-                    ),
+                    Text(currencyFormat.format(order.totalAmount),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.brown)),
                   ],
                 ),
               ],
             ),
 
             const SizedBox(height: 12),
-
-            // Progress Indicator
             _buildProgressIndicator(order.status),
-
             const SizedBox(height: 12),
 
             // View Detail Button
@@ -307,18 +229,10 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                 onPressed: () => _showOrderDetail(context, order),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.brown),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text(
-                  'Xem chi tiết',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown,
-                  ),
-                ),
+                child: const Text('Xem chi tiết',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.brown)),
               ),
             ),
           ],
@@ -342,75 +256,55 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: List.generate(
-            steps.length,
-            (index) => Expanded(
-              child: Column(
-                children: [
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: index <= currentStepIndex
-                          ? Colors.brown
-                          : Colors.grey[300],
-                    ),
-                    child: index < currentStepIndex
-                        ? const Icon(
-                            Icons.check,
-                            size: 14,
-                            color: Colors.white,
-                          )
-                        : null,
+        SizedBox(
+          height: 30,
+          child: Row(
+            children: List.generate(steps.length * 2 - 1, (index) {
+              if (index.isEven) {
+                final stepIndex = index ~/ 2;
+                return Container(
+                  width: 24, height: 24,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: stepIndex <= currentStepIndex ? Colors.brown : Colors.grey[300],
                   ),
-                  if (index < steps.length - 1)
-                    Expanded(
-                      child: Container(
-                        height: 2,
-                        color: index < currentStepIndex
-                            ? Colors.brown
-                            : Colors.grey[300],
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+                  child: stepIndex < currentStepIndex
+                      ? const Icon(Icons.check, size: 14, color: Colors.white)
+                      : null,
+                );
+              } else {
+                final lineIndex = index ~/ 2;
+                return Expanded(
+                  child: Container(
+                    height: 2,
+                    color: lineIndex < currentStepIndex ? Colors.brown : Colors.grey[300],
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                  ),
+                );
+              }
+            }),
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          'Bước ${currentStepIndex + 1} / ${steps.length}',
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text('Bước ${currentStepIndex + 1} / ${steps.length}',
+            style: TextStyle(fontSize: 11, color: Colors.grey[600])),
       ],
     );
   }
 
   Color _getStatusColor(OrderStatus status) {
     switch (status) {
-      case OrderStatus.pending:
-        return Colors.amber;
-      case OrderStatus.confirmed:
-        return Colors.blue;
-      case OrderStatus.preparing:
-        return Colors.orange;
-      case OrderStatus.ready:
-        return Colors.green;
-      case OrderStatus.onTheWay:
-        return Colors.purple;
-      case OrderStatus.delivered:
-        return Colors.green;
-      case OrderStatus.cancelled:
-        return Colors.red;
+      case OrderStatus.pending: return Colors.amber;
+      case OrderStatus.confirmed: return Colors.blue;
+      case OrderStatus.preparing: return Colors.orange;
+      case OrderStatus.ready: return Colors.green;
+      case OrderStatus.onTheWay: return Colors.purple;
+      case OrderStatus.delivered: return Colors.green;
+      case OrderStatus.cancelled: return Colors.red;
     }
   }
 
+  // ==================== CHI TIẾT ĐƠN HÀNG ====================
   void _showOrderDetail(BuildContext context, Order order) {
     final currencyFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'đ');
     final dateFormat = DateFormat('dd/MM/yyyy HH:mm', 'vi_VN');
@@ -418,41 +312,43 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => DraggableScrollableSheet(
+      builder: (ctx) => DraggableScrollableSheet(
         expand: false,
-        builder: (context, scrollController) => Column(
+        initialChildSize: 0.85,
+        maxChildSize: 0.95,
+        minChildSize: 0.5,
+        builder: (ctx, scrollController) => Column(
           children: [
+            // Header
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-                border: Border(
-                  bottom: BorderSide(color: Colors.grey[200]!),
-                ),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Chi tiết đơn hàng #${order.id}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Text(
+                      'Chi tiết đơn hàng',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
               ),
             ),
+
+            // Body
             Expanded(
               child: SingleChildScrollView(
                 controller: scrollController,
@@ -460,48 +356,54 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Status & Date
+                    // Mã đơn hàng
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.brown.withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(10),
                       ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.receipt_long_rounded, size: 18, color: Colors.brown),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Mã: #${order.id.length > 8 ? order.id.substring(0, 8) : order.id}',
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.brown),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Status & Date
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(10)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Trạng thái:'),
+                              const Text('Trạng thái:', style: TextStyle(fontSize: 13)),
                               Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: _getStatusColor(order.status),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Text(
-                                  order.status.displayName,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                child: Text(order.status.displayName,
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Ngày đặt: ${dateFormat.format(order.createdAt)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
+                          Text('Ngày đặt: ${dateFormat.format(order.createdAt)}',
+                              style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                         ],
                       ),
                     ),
@@ -509,13 +411,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                     const SizedBox(height: 20),
 
                     // Items List
-                    const Text(
-                      'Sản phẩm đã đặt',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const Text('Sản phẩm đã đặt', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
                     ...order.items.map((item) => Container(
                       margin: const EdgeInsets.only(bottom: 10),
@@ -529,12 +425,12 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              item.product.image,
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                            ),
+                            child: item.product.image.isNotEmpty && item.product.image.startsWith('assets/')
+                                ? Image.asset(item.product.image, width: 60, height: 60, fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Container(width: 60, height: 60, color: Colors.grey[200],
+                                      child: const Icon(Icons.local_cafe, color: Colors.brown)))
+                                : Container(width: 60, height: 60, color: Colors.grey[200],
+                                    child: const Icon(Icons.local_cafe, color: Colors.brown)),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -542,34 +438,33 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(item.product.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                                Text('Size: ${item.size} x ${item.quantity}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                const SizedBox(height: 2),
+                                Text('Size: ${item.size} x ${item.quantity}',
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                                 if (item.toppings.isNotEmpty)
-                                  Text('Topping: ${item.toppings.join(", ")}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                  Text('Topping: ${item.toppings.join(", ")}',
+                                      style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                               ],
                             ),
                           ),
-                          Text(currencyFormat.format(item.getTotalPrice()), 
-                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.brown)),
+                          Text(currencyFormat.format(item.getTotalPrice()),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.brown)),
                         ],
                       ),
                     )).toList(),
 
                     const SizedBox(height: 12),
+
                     // Phương thức thanh toán
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
                           const Icon(Icons.payment, size: 18, color: Colors.brown),
                           const SizedBox(width: 8),
-                          Text(
-                            'Thanh toán: ${order.paymentMethod.displayName}',
-                            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-                          ),
+                          Text('Thanh toán: ${order.paymentMethod.displayName}',
+                              style: TextStyle(fontSize: 13, color: Colors.grey[700])),
                         ],
                       ),
                     ),
@@ -577,46 +472,19 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                     const SizedBox(height: 20),
 
                     // Shipping Address
-                    const Text(
-                      'Địa chỉ giao hàng',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const Text('Địa chỉ giao hàng', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(8)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            order.recipientName,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          Text(order.recipientName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 4),
-                          Text(
-                            order.recipientPhone,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
+                          Text(order.recipientPhone, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                           const SizedBox(height: 4),
-                          Text(
-                            order.shippingAddress,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
+                          Text(order.shippingAddress, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
                         ],
                       ),
                     ),
@@ -624,94 +492,62 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                     const SizedBox(height: 20),
 
                     // Order Summary
-                    const Text(
-                      'Tóm tắt đơn hàng',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const Text('Tóm tắt đơn hàng', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 12),
-                    _buildSummaryRow('Tạm tính', currencyFormat.format(order.totalAmount)),
+                    _buildSummaryRow('Tạm tính', currencyFormat.format(order.subtotal)),
                     _buildSummaryRow('Phí vận chuyển', currencyFormat.format(order.shippingCost)),
                     if (order.discountCost > 0)
-                      _buildSummaryRow(
-                        'Giảm giá',
-                        '-${currencyFormat.format(order.discountCost)}',
-                        color: Colors.green,
-                      ),
+                      _buildSummaryRow('Giảm giá', '-${currencyFormat.format(order.discountCost)}', color: Colors.green),
                     Divider(color: Colors.grey[300]),
-                    _buildSummaryRow(
-                      'Tổng cộng',
-                      currencyFormat.format(order.totalAmount),
-                      isBold: true,
-                      color: Colors.brown,
-                    ),
+                    _buildSummaryRow('Tổng cộng', currencyFormat.format(order.totalAmount), isBold: true, color: Colors.brown),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
 
-                    // Action Buttons
-                    SizedBox(
-                      width: double.infinity,
-                      height: 44,
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Đơn hàng đã được sao chép vào clipboard'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.brown),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'Chia sẻ đơn hàng',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.brown,
+                    // ===== NÚT XÁC NHẬN ĐƠN HÀNG =====
+                    if (order.status == OrderStatus.pending)
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            _confirmOrder(context, order);
+                          },
+                          icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+                          label: const Text('Xác nhận đơn hàng',
+                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
                           ),
                         ),
                       ),
-                    ),
 
-                    if (order.status != OrderStatus.cancelled &&
-                        order.status != OrderStatus.delivered)
-                      Column(
-                        children: [
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 44,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                _showCancelDialog(context, order);
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: Colors.red),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: const Text(
-                                'Hủy đơn hàng',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ),
+                    if (order.status == OrderStatus.pending)
+                      const SizedBox(height: 10),
+
+                    // ===== NÚT HỦY ĐƠN HÀNG =====
+                    if (order.status != OrderStatus.cancelled && order.status != OrderStatus.delivered)
+                      SizedBox(
+                        width: double.infinity,
+                        height: 44,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            _showCancelDialog(context, order);
+                          },
+                          icon: const Icon(Icons.cancel_outlined, color: Colors.red, size: 18),
+                          label: const Text('Hủy đơn hàng',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.red)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.red),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-                        ],
+                        ),
                       ),
+
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
@@ -722,33 +558,36 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
     );
   }
 
-  Widget _buildSummaryRow(
-    String label,
-    String value, {
-    bool isBold = false,
-    Color color = Colors.black,
-  }) {
+  // Xác nhận đơn hàng → chuyển status sang confirmed
+  void _confirmOrder(BuildContext context, Order order) async {
+    try {
+      await _firebaseService.updateOrderStatus(order.id, OrderStatus.confirmed);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Đơn hàng đã được xác nhận thành công!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi xác nhận: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  Widget _buildSummaryRow(String label, String value, {bool isBold = false, Color color = Colors.black}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              color: color,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              color: color,
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 13, fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color)),
+          Text(value, style: TextStyle(fontSize: 13, fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color)),
         ],
       ),
     );
@@ -757,25 +596,38 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
   void _showCancelDialog(BuildContext context, Order order) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Hủy đơn hàng'),
-        content: const Text('Bạn có chắc chắn muốn hủy đơn hàng này?'),
+        content: const Text('Bạn có chắc chắn muốn hủy đơn hàng này không?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogCtx),
             child: const Text('Không'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Đơn hàng đã được hủy'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
+            onPressed: () async {
+              Navigator.pop(dialogCtx);
+              try {
+                await _firebaseService.updateOrderStatus(order.id, OrderStatus.cancelled);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Đơn hàng đã được hủy'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Lỗi hủy đơn: $e'), backgroundColor: Colors.red),
+                  );
+                }
+              }
             },
-            child: const Text('Xác nhận', style: TextStyle(color: Colors.red)),
+            child: const Text('Xác nhận hủy', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

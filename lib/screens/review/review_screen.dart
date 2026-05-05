@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../../common/theme/app_theme.dart';
 import '../../data/models/review_model.dart';
+import '../../data/services/firebase_service.dart';
 
 class ReviewScreen extends StatefulWidget {
   final String productId;
@@ -21,10 +20,8 @@ class ReviewScreen extends StatefulWidget {
 }
 
 class _ReviewScreenState extends State<ReviewScreen> {
-  final DatabaseReference _reviewsRef = FirebaseDatabase.instanceFor(
-    app: Firebase.app(),
-    databaseURL: 'https://vs6451071059-default-rtdb.asia-southeast1.firebasedatabase.app',
-  ).ref().child('reviews');
+  final CollectionReference _reviewsCol =
+      FirebaseFirestore.instance.collection('reviews');
 
   double _averageRating = 0;
   int _totalReviews = 0;
@@ -43,16 +40,21 @@ class _ReviewScreenState extends State<ReviewScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: StreamBuilder<DatabaseEvent>(
-        stream: _reviewsRef.orderByChild('productId').equalTo(widget.productId).onValue,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _reviewsCol.where('productId', isEqualTo: widget.productId).snapshots(),
         builder: (context, snapshot) {
           List<ReviewModel> reviews = [];
 
-          if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
-            final data = snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
-            data.forEach((key, value) {
-              reviews.add(ReviewModel.fromJson(value as Map<dynamic, dynamic>));
-            });
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            reviews = snapshot.data!.docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              final jsonData = Map<dynamic, dynamic>.from(data);
+              if (jsonData['createdAt'] is Timestamp) {
+                jsonData['createdAt'] = (jsonData['createdAt'] as Timestamp).toDate().toIso8601String();
+              }
+              jsonData['id'] = doc.id;
+              return ReviewModel.fromJson(jsonData);
+            }).toList();
             reviews.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
             if (reviews.isNotEmpty) {
@@ -63,10 +65,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
           return Column(
             children: [
-              // Header: Product name + Average rating
               _buildRatingHeader(reviews),
-
-              // Reviews list
               Expanded(
                 child: reviews.isEmpty
                     ? _buildEmptyState()
@@ -111,7 +110,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              // Average rating
               Expanded(
                 flex: 2,
                 child: Column(
@@ -125,7 +123,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 ),
               ),
               const SizedBox(width: 16),
-              // Distribution bars
               Expanded(
                 flex: 3,
                 child: Column(
@@ -173,10 +170,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         children: [
           Container(
             width: 100, height: 100,
-            decoration: BoxDecoration(
-              color: AppColors.tapioca.withOpacity(0.3),
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: AppColors.tapioca.withOpacity(0.3), shape: BoxShape.circle),
             child: const Icon(Icons.rate_review_outlined, size: 48, color: AppColors.milkTea),
           ),
           const SizedBox(height: 24),
@@ -262,13 +256,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Handle bar
               Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.tapioca, borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 20),
               const Text('Đánh giá sản phẩm', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
-
-              // Star rating
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(5, (index) {
@@ -278,8 +269,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Icon(
                         index < selectedRating ? Icons.star_rounded : Icons.star_outline_rounded,
-                        color: AppColors.milkTea,
-                        size: 40,
+                        color: AppColors.milkTea, size: 40,
                       ),
                     ),
                   );
@@ -287,8 +277,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
               ),
               Text(_getRatingText(selectedRating), style: TextStyle(color: AppColors.grey, fontSize: 13)),
               const SizedBox(height: 20),
-
-              // Comment
               TextField(
                 controller: commentController,
                 maxLines: 4,
@@ -296,29 +284,25 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   hintText: 'Chia sẻ trải nghiệm của bạn...',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.tapioca)),
                   focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.milkTea, width: 2)),
-                  filled: true,
-                  fillColor: AppColors.offWhite,
+                  filled: true, fillColor: AppColors.offWhite,
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Submit
               SizedBox(
                 width: double.infinity, height: 52,
                 child: ElevatedButton(
                   onPressed: () async {
-                    final user = FirebaseAuth.instance.currentUser;
-                    final review = ReviewModel(
-                      id: DateTime.now().millisecondsSinceEpoch.toString(),
-                      userId: user?.uid ?? 'guest',
-                      userName: user?.displayName ?? user?.email?.split('@')[0] ?? 'Ẩn danh',
-                      productId: widget.productId,
-                      productName: widget.productName,
-                      orderId: '',
-                      rating: selectedRating,
-                      comment: commentController.text.trim(),
-                    );
-                    await _reviewsRef.child(review.id).set(review.toJson());
+                    final userId = FirebaseService().userId;
+                    await _reviewsCol.add({
+                      'userId': userId,
+                      'userName': 'Khách hàng',
+                      'productId': widget.productId,
+                      'productName': widget.productName,
+                      'orderId': '',
+                      'rating': selectedRating,
+                      'comment': commentController.text.trim(),
+                      'createdAt': Timestamp.now(),
+                    });
                     Navigator.pop(ctx);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Cảm ơn bạn đã đánh giá!'), backgroundColor: Colors.green),

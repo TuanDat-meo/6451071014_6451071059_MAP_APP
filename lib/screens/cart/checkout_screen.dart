@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 import '../../controller/cart_controller.dart';
 import '../../common/theme/app_theme.dart';
@@ -31,12 +30,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    // Điền sẵn thông tin từ Firebase Auth nếu có
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      _nameController.text = user.displayName ?? '';
-      _phoneController.text = user.phoneNumber ?? '';
-    }
   }
 
   @override
@@ -54,8 +47,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      final userId = user?.uid ?? 'guest_user';
+      final userId = FirebaseService().userId;
 
       final newOrder = Order(
         id: const Uuid().v4(),
