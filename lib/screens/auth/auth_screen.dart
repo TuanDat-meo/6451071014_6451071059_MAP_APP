@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../common/theme/app_theme.dart';
 import '../../common/widgets/app_button.dart';
 import '../../data/services/auth_service.dart';
-import '../home/home_screen.dart';
+import '../main_navigation_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -79,7 +79,7 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
           
           if (!mounted) return;
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
           );
         }
       });

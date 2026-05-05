@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../data/models/boba_model.dart';
 import '../../data/services/firebase_service.dart';
 import 'package:intl/intl.dart';
+import '../product/product_detail_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -84,9 +85,9 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                   child: const TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Tìm kiếm trà sữa...',
-                      border: InputValue.none,
+                      border: InputBorder.none,
                       icon: Icon(Icons.search, color: Colors.brown),
                     ),
                   ),
@@ -120,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       itemCount: products.length,
                       itemBuilder: (context, index) {
-                        return _buildProductCard(products[index], currencyFormat);
+                        return _buildProductCard(context, products[index], currencyFormat);
                       },
                     ),
               ),
@@ -132,86 +133,93 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductCard(BobaModel product, NumberFormat format) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 8,
+  Widget _buildProductCard(BuildContext context, BobaModel product, NumberFormat format) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailScreen(product: product),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Hình ảnh sản phẩm
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-              child: product.image.startsWith('assets/')
-                ? Image.asset(
-                    product.image,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                  )
-                : Image.network(
-                    product.image,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, size: 50),
-                  ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 8,
             ),
-          ),
-          
-          // Thông tin sản phẩm
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.category,
-                  style: const TextStyle(fontSize: 10, color: Colors.brown, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  product.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      format.format(product.price),
-                      style: const TextStyle(color: Colors.brown, fontWeight: FontWeight.bold),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.brown,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.add, color: Colors.white, size: 16),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Hình ảnh sản phẩm
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                child: product.image.startsWith('assets/')
+                  ? Image.asset(
+                      product.image,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
                     )
-                  ],
-                ),
-              ],
+                  : Image.network(
+                      product.image,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, size: 50),
+                    ),
+              ),
             ),
-          ),
-        ],
+            
+            // Thông tin sản phẩm
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.category,
+                    style: const TextStyle(fontSize: 10, color: Colors.brown, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    product.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        format.format(product.price),
+                        style: const TextStyle(color: Colors.brown, fontWeight: FontWeight.bold),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.brown,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.add, color: Colors.white, size: 16),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-// Sửa lỗi InputValue.none thành InputBorder.none
-class InputValue {
-  static const none = InputBorder.none;
-}
+// Đã sửa lỗi
