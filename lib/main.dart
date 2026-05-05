@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart'; 
 import 'firebase_options.dart'; 
 import 'package:flutter/services.dart';
 import 'package:quan_ly_quan_ts/data/services/firebase_service.dart'; // Import service
-import 'package:quan_ly_quan_ts/screens/onboarding/onboarding_screen.dart'; // Import OnboardingScreen
+import 'package:quan_ly_quan_ts/screens/onboarding/onboarding_screen.dart'; 
 import 'common/theme/app_theme.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'controller/cart_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +16,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Khởi tạo các Controller của GetX
+  Get.put(CartController());
+
+  // Khởi tạo định dạng ngày tháng/tiền tệ cho tiếng Việt
+  await initializeDateFormatting('vi_VN', null);
 
   // Tạo dữ liệu mẫu
   await FirebaseService().seedData();
@@ -33,7 +42,7 @@ class BobaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Boba House',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

@@ -341,71 +341,73 @@ class _OnboardingSlideWidgetState extends State<OnboardingSlideWidget>
         ),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Spacer(flex: 1),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 40),
 
-              // Unique illustration area for each slide
-              Center(
-                child: _buildUniqueImageWidget(size),
-              ),
+                // Unique illustration area for each slide
+                Center(
+                  child: _buildUniqueImageWidget(size),
+                ),
 
-              const Spacer(flex: 1),
+                const SizedBox(height: 40),
 
-              // Text content
-              SlideTransition(
-                position: _slideUp,
-                child: FadeTransition(
-                  opacity: _fadeIn,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Label tag
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: AppColors.milkTea.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          widget.slide.subtitle,
-                          style: AppTextStyles.label.copyWith(
-                            color: AppColors.mediumBrown,
-                            fontSize: 11,
-                            letterSpacing: 1.5,
+                // Text content
+                SlideTransition(
+                  position: _slideUp,
+                  child: FadeTransition(
+                    opacity: _fadeIn,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Label tag
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: AppColors.milkTea.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            widget.slide.subtitle,
+                            style: AppTextStyles.label.copyWith(
+                              color: AppColors.mediumBrown,
+                              fontSize: 11,
+                              letterSpacing: 1.5,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                      // Title
-                      Text(
-                        widget.slide.title,
-                        style: AppTextStyles.display.copyWith(
-                          fontSize: 36,
-                          height: 1.15,
+                        // Title
+                        Text(
+                          widget.slide.title,
+                          style: AppTextStyles.display.copyWith(
+                            fontSize: 36,
+                            height: 1.15,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                      // Description
-                      Text(
-                        widget.slide.description,
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.darkGrey.withOpacity(0.75),
-                          height: 1.7,
+                        // Description
+                        Text(
+                          widget.slide.description,
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.darkGrey.withOpacity(0.75),
+                            height: 1.7,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              const Spacer(flex: 2),
-            ],
+                const SizedBox(height: 120), // Tạo khoảng trống cho các nút điều khiển ở dưới
+              ],
+            ),
           ),
         ),
       ),
