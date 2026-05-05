@@ -8,6 +8,7 @@ import 'package:quan_ly_quan_ts/screens/onboarding/onboarding_screen.dart';
 import 'common/theme/app_theme.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'controller/cart_controller.dart';
+import 'controller/wishlist_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +20,7 @@ void main() async {
 
   // Khởi tạo các Controller của GetX
   Get.put(CartController());
+  Get.put(WishlistController());
 
   // Khởi tạo định dạng ngày tháng/tiền tệ cho tiếng Việt
   await initializeDateFormatting('vi_VN', null);

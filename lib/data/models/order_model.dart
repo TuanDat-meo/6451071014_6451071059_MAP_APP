@@ -114,7 +114,7 @@ class Order {
     return Order(
       id: json['id'] ?? '',
       userId: json['userId'] ?? '',
-      items: (json['items'] as List?)?.map((item) => item as CartItem).toList() ?? [],
+      items: (json['items'] as List?)?.map((item) => CartItem.fromMap(item as Map<dynamic, dynamic>)).toList() ?? [],
       subtotal: (json['subtotal'] ?? 0).toDouble(),
       shippingCost: (json['shippingCost'] ?? 0).toDouble(),
       taxCost: (json['taxCost'] ?? 0).toDouble(),

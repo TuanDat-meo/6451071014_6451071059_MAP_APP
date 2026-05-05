@@ -26,12 +26,31 @@ class CartItem {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'productId': product.id,
+      'product': product.toJson(), // Lưu toàn bộ thông tin sản phẩm
       'quantity': quantity,
       'size': size,
       'toppings': toppings,
       'additionalPrice': additionalPrice,
     };
+  }
+
+  // Tạo từ JSON (Sử dụng cho Firebase Order)
+  factory CartItem.fromMap(Map<dynamic, dynamic> json) {
+    final productMap = json['product'] as Map<dynamic, dynamic>?;
+    
+    // Tạo sản phẩm mặc định nếu dữ liệu cũ bị thiếu
+    final product = productMap != null 
+        ? BobaModel.fromJson(productMap, productMap['id'] ?? '')
+        : BobaModel(id: 'unknown', name: 'Sản phẩm cũ', price: 0, image: '', description: '', category: '');
+
+    return CartItem(
+      id: json['id'] ?? '',
+      product: product,
+      quantity: json['quantity'] ?? 1,
+      size: json['size'] ?? 'M',
+      toppings: List<String>.from(json['toppings'] ?? []),
+      additionalPrice: (json['additionalPrice'] ?? 0).toDouble(),
+    );
   }
 
   // Create from JSON

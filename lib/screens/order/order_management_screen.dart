@@ -27,10 +27,8 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.brown),
-          onPressed: () => Navigator.pop(context),
-        ),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
@@ -40,7 +38,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
           // Orders List
           Expanded(
             child: StreamBuilder<List<Order>>(
-              stream: _firebaseService.getUserOrdersStream(_currentUserId),
+              stream: _firebaseService.getAllOrdersStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -50,12 +48,18 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                   return Center(child: Text('Lỗi: ${snapshot.error}'));
                 }
 
-                final allOrders = snapshot.data ?? [];
+                // Lọc theo userId của người dùng hiện tại
+                final userOrders = (snapshot.data ?? [])
+                    .where((o) => o.userId == _currentUserId)
+                    .toList();
                 
-                // Lọc đơn hàng theo tab
+                // Sắp xếp theo ngày mới nhất
+                userOrders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+                
+                // Lọc đơn hàng theo tab filter
                 final filteredOrders = selectedFilter == 'all' 
-                    ? allOrders 
-                    : allOrders.where((o) => o.status.name == selectedFilter).toList();
+                    ? userOrders 
+                    : userOrders.where((o) => o.status.name == selectedFilter).toList();
 
                 if (filteredOrders.isEmpty) {
                   return _buildEmptyState();
@@ -498,13 +502,73 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
                               color: Colors.grey[600],
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Phương thức thanh toán: ${order.paymentMethod.displayName}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Items List
+                    const Text(
+                      'Sản phẩm đã đặt',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ...order.items.map((item) => Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(
+                              item.product.image,
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.cover,
                             ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(item.product.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                Text('Size: ${item.size} x ${item.quantity}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                if (item.toppings.isNotEmpty)
+                                  Text('Topping: ${item.toppings.join(", ")}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                              ],
+                            ),
+                          ),
+                          Text(currencyFormat.format(item.getTotalPrice()), 
+                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.brown)),
+                        ],
+                      ),
+                    )).toList(),
+
+                    const SizedBox(height: 12),
+                    // Phương thức thanh toán
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.payment, size: 18, color: Colors.brown),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Thanh toán: ${order.paymentMethod.displayName}',
+                            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
                           ),
                         ],
                       ),
