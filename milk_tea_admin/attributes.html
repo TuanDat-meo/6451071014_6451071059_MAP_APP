@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thuộc tính đồ uống - Milk Tea Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i data-lucide="coffee" class="logo-icon"></i>
+                    <span>BOBA DELIGHT</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">MAIN MENU</div>
+                <ul>
+                    <li><a href="index.html"><i data-lucide="layout-dashboard"></i> <span>Bảng điều khiển</span></a></li>
+                    <li><a href="categories.html"><i data-lucide="cup-soda"></i> <span>Danh mục đồ uống</span></a></li>
+                    <li class="active"><a href="attributes.html"><i data-lucide="layers"></i> <span>Topping & Tùy chọn</span></a></li>
+                    <li><a href="#"><i data-lucide="package"></i> <span>Quản lý nguyên liệu</span></a></li>
+                    <li><a href="#"><i data-lucide="ticket-percent"></i> <span>Khuyến mãi</span></a></li>
+                    <li><a href="#"><i data-lucide="shopping-bag"></i> <span>Sản phẩm</span></a></li>
+                </ul>
+
+                <div class="nav-section">SALES</div>
+                <ul>
+                    <li><a href="#"><i data-lucide="shopping-cart"></i> <span>Đơn hàng</span></a></li>
+                    <li><a href="#"><i data-lucide="users"></i> <span>Khách hàng</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <span class="version">v1.2.0</span>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Tìm kiếm hệ thống...">
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn"><i data-lucide="globe"></i></button>
+                    <button class="icon-btn notification"><i data-lucide="bell"></i><span class="badge"></span></button>
+                    <button class="icon-btn"><i data-lucide="settings"></i></button>
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <span class="user-name">Admin Boba</span>
+                            <span class="user-role">Quản trị viên</span>
+                        </div>
+                        <div class="user-avatar">AD</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Attributes Content -->
+            <section class="dashboard-body">
+                <div class="page-header">
+                    <h2>Topping & Tùy chọn</h2>
+                    <button class="primary-btn"><i data-lucide="plus"></i> THÊM THUỘC TÍNH</button>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header-actions">
+                        <div class="search-input-wrapper">
+                            <i data-lucide="search"></i>
+                            <input type="text" placeholder="Tìm kiếm thuộc tính hoặc giá trị...">
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"></th>
+                                    <th>STT</th>
+                                    <th>THUỘC TÍNH</th>
+                                    <th>GIÁ TRỊ</th>
+                                    <th>TRẠNG THÁI</th>
+                                    <th>CẬP NHẬT</th>
+                                    <th>HÀNH ĐỘNG</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>#1</td>
+                                    <td><span class="attr-name">Kích cỡ (Size)</span></td>
+                                    <td>
+                                        <div class="pill-group">
+                                            <span class="pill">S</span>
+                                            <span class="pill">M</span>
+                                            <span class="pill">L</span>
+                                            <span class="pill">XL</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge active">Hoạt động</span></td>
+                                    <td>12/05/2026</td>
+                                    <td class="actions">
+                                        <button class="edit-btn"><i data-lucide="edit-3"></i></button>
+                                        <button class="delete-btn"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>#2</td>
+                                    <td><span class="attr-name">Mức đường</span></td>
+                                    <td>
+                                        <div class="pill-group">
+                                            <span class="pill">0%</span>
+                                            <span class="pill">30%</span>
+                                            <span class="pill">50%</span>
+                                            <span class="pill">70%</span>
+                                            <span class="pill">100%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge active">Hoạt động</span></td>
+                                    <td>12/05/2026</td>
+                                    <td class="actions">
+                                        <button class="edit-btn"><i data-lucide="edit-3"></i></button>
+                                        <button class="delete-btn"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>#3</td>
+                                    <td><span class="attr-name">Mức đá</span></td>
+                                    <td>
+                                        <div class="pill-group">
+                                            <span class="pill">Nóng</span>
+                                            <span class="pill">Không đá</span>
+                                            <span class="pill">50% đá</span>
+                                            <span class="pill">Thường</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge active">Hoạt động</span></td>
+                                    <td>11/05/2026</td>
+                                    <td class="actions">
+                                        <button class="edit-btn"><i data-lucide="edit-3"></i></button>
+                                        <button class="delete-btn"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td>#4</td>
+                                    <td><span class="attr-name">Topping</span></td>
+                                    <td>
+                                        <div class="pill-group">
+                                            <span class="pill">Trân châu đen</span>
+                                            <span class="pill">Thạch trái cây</span>
+                                            <span class="pill">Pudding</span>
+                                            <span class="pill">+5</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge active">Hoạt động</span></td>
+                                    <td>10/05/2026</td>
+                                    <td class="actions">
+                                        <button class="edit-btn"><i data-lucide="edit-3"></i></button>
+                                        <button class="delete-btn"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <button class="page-nav active">1</button>
+                        <button class="page-nav">2</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

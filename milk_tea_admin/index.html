@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milk Tea Admin - Dashboard Cao Cấp</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i data-lucide="coffee" class="logo-icon"></i>
+                    <span>BOBA DELIGHT</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">MAIN MENU</div>
+                <ul>
+                    <li class="active"><a href="#"><i data-lucide="layout-dashboard"></i> <span>Bảng điều khiển</span></a></li>
+                    <li><a href="#"><i data-lucide="cup-soda"></i> <span>Danh mục đồ uống</span></a></li>
+                    <li><a href="#"><i data-lucide="layers"></i> <span>Topping & Tùy chọn</span></a></li>
+                    <li><a href="#"><i data-lucide="package"></i> <span>Quản lý nguyên liệu</span></a></li>
+                    <li><a href="#"><i data-lucide="ticket-percent"></i> <span>Khuyến mãi</span></a></li>
+                    <li><a href="#"><i data-lucide="shopping-bag"></i> <span>Sản phẩm</span></a></li>
+                </ul>
+
+                <div class="nav-section">SALES</div>
+                <ul>
+                    <li><a href="#"><i data-lucide="shopping-cart"></i> <span>Đơn hàng</span></a></li>
+                    <li><a href="#"><i data-lucide="users"></i> <span>Khách hàng</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <span class="version">v1.2.0</span>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Tìm kiếm hệ thống...">
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn"><i data-lucide="globe"></i></button>
+                    <button class="icon-btn notification"><i data-lucide="bell"></i><span class="badge"></span></button>
+                    <button class="icon-btn"><i data-lucide="settings"></i></button>
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <span class="user-name">Admin Boba</span>
+                            <span class="user-role">Quản trị viên</span>
+                        </div>
+                        <div class="user-avatar">AD</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <section class="dashboard-body">
+                <div class="welcome-header">
+                    <div class="welcome-icon"><i data-lucide="bar-chart-3"></i></div>
+                    <h2>Hệ Thống Quản Lý Trà Sữa</h2>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card revenue">
+                        <div class="stat-info">
+                            <span class="stat-label">Tổng Doanh Thu</span>
+                            <h3 class="stat-value">12.733.190 ₫</h3>
+                        </div>
+                        <div class="stat-icon-bg"><i data-lucide="dollar-sign"></i></div>
+                    </div>
+                    <div class="stat-card orders">
+                        <div class="stat-info">
+                            <span class="stat-label">Đơn Hàng Hôm Nay</span>
+                            <h3 class="stat-value">148</h3>
+                        </div>
+                        <div class="stat-icon-bg"><i data-lucide="shopping-basket"></i></div>
+                    </div>
+                    <div class="stat-card best-seller">
+                        <div class="stat-info">
+                            <span class="stat-label">Sản Phẩm Bán Chạy</span>
+                            <h3 class="stat-value">Trà Sữa Matcha</h3>
+                        </div>
+                        <div class="stat-icon-bg"><i data-lucide="star"></i></div>
+                    </div>
+                    <div class="stat-card stock">
+                        <div class="stat-info">
+                            <span class="stat-label">Cảnh Báo Kho</span>
+                            <h3 class="stat-value">5 Nguyên liệu</h3>
+                        </div>
+                        <div class="stat-icon-bg"><i data-lucide="alert-triangle"></i></div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-container line-chart-box">
+                        <div class="chart-header">
+                            <h4>Phân Tích Doanh Thu Tuần</h4>
+                            <div class="chart-actions">
+                                <button class="active">Tuần này</button>
+                                <button>Tuần trước</button>
+                            </div>
+                        </div>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                    <div class="chart-container donut-chart-box">
+                        <div class="chart-header">
+                            <h4>Thống Kê Đơn Hàng</h4>
+                        </div>
+                        <canvas id="statusChart"></canvas>
+                        <div class="chart-legend">
+                            <div class="legend-item"><span class="dot delivered"></span> Đã giao</div>
+                            <div class="legend-item"><span class="dot processing"></span> Đang làm</div>
+                            <div class="legend-item"><span class="dot cancelled"></span> Đã hủy</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
