@@ -39,7 +39,18 @@ class AdminWebMain extends StatelessWidget {
         primaryColor: const Color(0xFF1976D2),
         useMaterial3: true,
         fontFamily: 'Roboto',
+        checkboxTheme: CheckboxThemeData(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          side: const BorderSide(color: Color(0xFF2D3748), width: 2.0),
+          fillColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const Color(0xFF1976D2);
+            }
+            return null;
+          }),
+        ),
       ),
+
     );
   }
 }

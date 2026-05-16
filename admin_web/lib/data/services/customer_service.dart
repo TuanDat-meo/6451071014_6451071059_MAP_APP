@@ -12,4 +12,8 @@ class CustomerService {
   Future<void> updateCustomer(CustomerModel customer) async {
     await _collection.doc(customer.id).update(customer.toJson());
   }
+
+  Future<void> deleteCustomer(String id) async {
+    await _collection.doc(id).delete();
+  }
 }

@@ -13,7 +13,6 @@ class AdminLayout extends StatelessWidget {
       body: Row(
         children: [
           const Sidebar(),
-          const VerticalDivider(thickness: 1, width: 1),
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(20),

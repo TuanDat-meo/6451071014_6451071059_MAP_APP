@@ -12,4 +12,12 @@ class CouponService {
   Future<void> addCoupon(CouponModel coupon) async {
     await _collection.add(coupon.toJson());
   }
+
+  Future<void> updateCoupon(CouponModel coupon) async {
+    await _collection.doc(coupon.id).update(coupon.toJson());
+  }
+
+  Future<void> deleteCoupon(String id) async {
+    await _collection.doc(id).delete();
+  }
 }
