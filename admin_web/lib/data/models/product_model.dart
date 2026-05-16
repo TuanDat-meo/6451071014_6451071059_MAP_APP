@@ -40,7 +40,9 @@ class ProductModel {
     price: (json['price'] ?? 0).toDouble(),
     categoryId: json['categoryId'] ?? '',
     brandId: json['brandId'] ?? '',
-    images: List<String>.from(json['images'] ?? []),
+    images: json['images'] != null 
+        ? List<String>.from(json['images']) 
+        : (json['image'] != null ? [json['image'].toString()] : []),
     stock: json['stock'] ?? 0,
     isFeatured: json['isFeatured'] ?? false,
   );

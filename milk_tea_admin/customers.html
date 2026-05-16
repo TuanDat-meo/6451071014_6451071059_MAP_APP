@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý khách hàng - Milk Tea Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Add specific styles for avatar colors just to make it lively */
+        .cust-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+            margin-right: 12px;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+        .bg-c1 { background: linear-gradient(135deg, #E0C3FC 0%, #8EC5FC 100%); }
+        .bg-c2 { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); }
+        .bg-c3 { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+        .bg-c4 { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+        
+        .customer-cell {
+            display: flex;
+            align-items: center;
+        }
+        .customer-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .orders-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+            padding: 0 8px;
+            background: #fff7ed;
+            color: #ea580c;
+            border: 1px solid #ffedd5;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .action-view-btn {
+            background: #e0f2fe;
+            color: #0284c7;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .action-view-btn:hover {
+            background: #0284c7;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i data-lucide="coffee" class="logo-icon"></i>
+                    <span>BOBA DELIGHT</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">MAIN MENU</div>
+                <ul>
+                    <li><a href="index.html"><i data-lucide="layout-dashboard"></i> <span>Bảng điều khiển</span></a></li>
+                    <li><a href="categories.html"><i data-lucide="cup-soda"></i> <span>Danh mục đồ uống</span></a></li>
+                    <li><a href="brands.html"><i data-lucide="award"></i> <span>Thương hiệu</span></a></li>
+                    <li><a href="attributes.html"><i data-lucide="layers"></i> <span>Thuộc tính</span></a></li>
+                    <li><a href="#"><i data-lucide="ticket-percent"></i> <span>Mã giảm giá</span></a></li>
+                    <li><a href="#"><i data-lucide="shopping-bag"></i> <span>Sản phẩm</span></a></li>
+                </ul>
+
+                <div class="nav-section">SALES</div>
+                <ul>
+                    <li><a href="#"><i data-lucide="shopping-cart"></i> <span>Đơn hàng</span></a></li>
+                    <li class="active"><a href="customers.html"><i data-lucide="users"></i> <span>Khách hàng</span></a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <span class="version">v1.2.0</span>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Tìm kiếm hệ thống...">
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn"><i data-lucide="globe"></i></button>
+                    <button class="icon-btn notification"><i data-lucide="bell"></i><span class="badge"></span></button>
+                    <button class="icon-btn"><i data-lucide="settings"></i></button>
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <span class="user-name">Admin Boba</span>
+                            <span class="user-role">Quản trị viên</span>
+                        </div>
+                        <div class="user-avatar">AD</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Body -->
+            <section class="dashboard-body">
+                <div class="page-header">
+                    <h2>Quản lý khách hàng</h2>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header-actions">
+                        <div class="search-input-wrapper">
+                            <i data-lucide="search"></i>
+                            <input type="text" placeholder="Tìm kiếm theo tên, email hoặc số điện thoại...">
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>KHÁCH HÀNG</th>
+                                    <th>EMAIL</th>
+                                    <th>ĐIỆN THOẠI</th>
+                                    <th>ĐƠN HÀNG</th>
+                                    <th>NGÀY ĐĂNG KÝ</th>
+                                    <th>HÀNH ĐỘNG</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td class="customer-cell">
+                                        <div class="cust-avatar bg-c1">D</div>
+                                        <span class="customer-name">Duong Ngok</span>
+                                    </td>
+                                    <td>16520270@gm.uit.edu.vn</td>
+                                    <td>0978720999</td>
+                                    <td><span class="orders-badge">0</span></td>
+                                    <td>23/04/2026</td>
+                                    <td class="actions">
+                                        <button class="action-view-btn"><i data-lucide="eye"></i></button>
+                                        <button class="delete-btn"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td class="customer-cell">
+                                        <div class="cust-avatar bg-c2">W</div>
+                                        <span class="customer-name">Wakita Kanenori</span>
+                                    </td>
+                                    <td>16520270@gm.uit.edu.vn</td>
+                                    <td>0965332999</td>
+                                    <td><span class="orders-badge">1</span></td>
+                                    <td>25/04/2026</td>
+                                    <td class="actions">
+                                        <button class="action-view-btn"><i data-lucide="eye"></i></button>
+                                        <button class="delete-btn"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td class="customer-cell">
+                                        <div class="cust-avatar bg-c3">H</div>
+                                        <span class="customer-name">Hattori Heiji</span>
+                                    </td>
+                                    <td>ntduong@utc2.edu.vn</td>
+                                    <td>0978720999</td>
+                                    <td><span class="orders-badge">1</span></td>
+                                    <td>24/02/2026</td>
+                                    <td class="actions">
+                                        <button class="action-view-btn"><i data-lucide="eye"></i></button>
+                                        <button class="delete-btn"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td class="customer-cell">
+                                        <div class="cust-avatar bg-c4">W</div>
+                                        <span class="customer-name">Wakasa Rumi</span>
+                                    </td>
+                                    <td>ntduong@st.utc2.edu.vn</td>
+                                    <td>0965879220</td>
+                                    <td><span class="orders-badge">4</span></td>
+                                    <td>23/02/2026</td>
+                                    <td class="actions">
+                                        <button class="action-view-btn"><i data-lucide="eye"></i></button>
+                                        <button class="delete-btn"><i data-lucide="trash-2"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <button class="page-nav active">1</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

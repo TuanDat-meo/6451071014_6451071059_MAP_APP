@@ -12,4 +12,13 @@ class BrandService {
   Future<void> addBrand(BrandModel brand) async {
     await _collection.add(brand.toJson());
   }
+
+  Future<void> updateBrand(BrandModel brand) async {
+    await _collection.doc(brand.id).update(brand.toJson());
+  }
+
+  Future<void> deleteBrand(String id) async {
+    await _collection.doc(id).delete();
+  }
 }
+

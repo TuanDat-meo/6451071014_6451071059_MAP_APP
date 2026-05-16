@@ -57,7 +57,7 @@ class AppRoutes {
     ),
     GetPage(
       name: coupons, 
-      page: () => const CouponsPage(),
+      page: () => CouponsPage(),
       middlewares: [AdminMiddleware()],
     ),
     GetPage(

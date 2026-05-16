@@ -43,14 +43,16 @@ class OrderItem {
   String productName;
   int quantity;
   double price;
+  String? productImage;
 
-  OrderItem({required this.productId, required this.productName, required this.quantity, required this.price});
+  OrderItem({required this.productId, required this.productName, required this.quantity, required this.price, this.productImage});
 
   Map<String, dynamic> toJson() => {
     'productId': productId,
     'productName': productName,
     'quantity': quantity,
     'price': price,
+    'productImage': productImage,
   };
 
   factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(
@@ -58,5 +60,6 @@ class OrderItem {
     productName: json['productName'] ?? '',
     quantity: json['quantity'] ?? 0,
     price: (json['price'] ?? 0).toDouble(),
+    productImage: json['productImage'],
   );
 }
